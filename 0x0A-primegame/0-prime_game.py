@@ -17,10 +17,13 @@ def sieve(n):
 
 def isWinner(x, nums):
     """Determine the winner of the prime game"""
-    if not x or not nums:
+    if x <= 0 or not nums:
         return None
 
     max_num = max(nums)
+    if max_num < 2:
+        return None
+
     primes_up_to_max = sieve(max_num)
     wins = {"Maria": 0, "Ben": 0}
 
@@ -30,21 +33,17 @@ def isWinner(x, nums):
         remaining_numbers = set(range(1, n + 1))
 
         while primes:
-            # Find the next available prime
             for prime in primes:
                 if prime in remaining_numbers:
-                    # Remove prime and its multiples
                     to_remove = set(range(prime, n + 1, prime))
                     remaining_numbers -= to_remove
                     break
             else:
-                # No more primes available to choose
                 break
 
             primes = [p for p in primes if p in remaining_numbers]
-            player = 1 - player  # switch player
+            player = 1 - player
 
-        # Determine who won the round
         if player == 0:
             wins["Ben"] += 1
         else:
@@ -56,4 +55,3 @@ def isWinner(x, nums):
         return "Ben"
     else:
         return None
-
