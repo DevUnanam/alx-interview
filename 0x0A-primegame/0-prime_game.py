@@ -1,57 +1,28 @@
 #!/usr/bin/python3
-"""ALX SE Prime Game"""
-
-
-def sieve(n):
-    """Use Sieve of Eratosthenes to find all primes up to n."""
-    is_prime = [True] * (n + 1)
-    p = 2
-    while (p * p <= n):
-        if is_prime[p]:
-            for i in range(p * p, n + 1, p):
-                is_prime[i] = False
-        p += 1
-    primes = [p for p in range(2, n + 1) if is_prime[p]]
-    return primes
+"""Prime game module.
+"""
 
 
 def isWinner(x, nums):
-    """Determine the winner of the prime game"""
-    if x <= 0 or not nums:
+    """Determines the winner of a prime game session with `x` rounds.
+    """
+    if x < 1 or not nums:
         return None
-
-    max_num = max(nums)
-    if max_num < 2:
+    marias_wins, bens_wins = 0, 0
+    # generate primes with a limit of the maximum number in nums
+    n = max(nums)
+    primes = [True for _ in range(1, n + 1, 1)]
+    primes[0] = False
+    for i, is_prime in enumerate(primes, 1):
+        if i == 1 or not is_prime:
+            continue
+        for j in range(i + i, n + 1, i):
+            primes[j - 1] = False
+    # filter the number of primes less than n in nums for each round
+    for _, n in zip(range(x), nums):
+        primes_count = len(list(filter(lambda x: x, primes[0: n])))
+        bens_wins += primes_count % 2 == 0
+        marias_wins += primes_count % 2 == 1
+    if marias_wins == bens_wins:
         return None
-
-    primes_up_to_max = sieve(max_num)
-    wins = {"Maria": 0, "Ben": 0}
-
-    for n in nums:
-        primes = [p for p in primes_up_to_max if p <= n]
-        player = 0  # 0 for Maria, 1 for Ben
-        remaining_numbers = set(range(1, n + 1))
-
-        while primes:
-            for prime in primes:
-                if prime in remaining_numbers:
-                    to_remove = set(range(prime, n + 1, prime))
-                    remaining_numbers -= to_remove
-                    break
-            else:
-                break
-
-            primes = [p for p in primes if p in remaining_numbers]
-            player = 1 - player
-
-        if player == 0:
-            wins["Ben"] += 1
-        else:
-            wins["Maria"] += 1
-
-    if wins["Maria"] > wins["Ben"]:
-        return "Maria"
-    elif wins["Ben"] > wins["Maria"]:
-        return "Ben"
-    else:
-        return None
+    return 'Maria' if marias_wins > bens_wins else 'Ben'
